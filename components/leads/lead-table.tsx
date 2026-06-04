@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/utils";
 import { Phone, Mail, MoreHorizontal, Eye, Edit, Trash2 } from "lucide-react";
+import Link from "next/link";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,9 +17,10 @@ import {
 interface LeadTableProps {
   leads: Lead[];
   onEdit: (lead: Lead) => void;
+  onMailClick?: (lead: Lead) => void;
 }
 
-export function LeadTable({ leads, onEdit }: LeadTableProps) {
+export function LeadTable({ leads, onEdit, onMailClick }: LeadTableProps) {
   const getStatusBadge = (status: Lead["status"]) => {
     const variants: Record<Lead["status"], "default" | "success" | "warning" | "error" | "info"> = {
       new: "info",
@@ -90,7 +92,12 @@ export function LeadTable({ leads, onEdit }: LeadTableProps) {
                     <Button variant="ghost" size="icon" className="w-8 h-8">
                       <Phone className="w-4 h-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="w-8 h-8">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="w-8 h-8 hover:bg-slate-100 hover:text-indigo-600 transition-colors"
+                      onClick={() => onMailClick?.(lead)}
+                    >
                       <Mail className="w-4 h-4" />
                     </Button>
                     <DropdownMenu>
@@ -100,9 +107,11 @@ export function LeadTable({ leads, onEdit }: LeadTableProps) {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem className="gap-2">
-                          <Eye className="w-4 h-4" />
-                          View Details
+                        <DropdownMenuItem className="gap-2" asChild>
+                          <Link href={`/leads/${lead.id}`}>
+                            <Eye className="w-4 h-4" />
+                            View Details
+                          </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem className="gap-2" onClick={() => onEdit(lead)}>
                           <Edit className="w-4 h-4" />

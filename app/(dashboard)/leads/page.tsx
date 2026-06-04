@@ -5,6 +5,7 @@ import { leads } from "@/lib/mock-data";
 import { Lead } from "@/types";
 import { LeadTable } from "@/components/leads/lead-table";
 import { LeadForm } from "@/components/leads/lead-form";
+import { LeadChatbox } from "@/components/leads/lead-chatbox";
 import { Button } from "@/components/ui/button";
 import { Plus, Download, Search, Filter } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -20,6 +21,7 @@ export default function LeadsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [activeChatLead, setActiveChatLead] = useState<Lead | null>(null);
 
   const filteredLeads = leads.filter(
     (lead) =>
@@ -85,7 +87,14 @@ export default function LeadsPage() {
         </Button>
       </div>
 
-      <LeadTable leads={filteredLeads} onEdit={handleEditLead} />
+      <LeadTable leads={filteredLeads} onEdit={handleEditLead} onMailClick={setActiveChatLead} />
+
+      {activeChatLead && (
+        <LeadChatbox 
+          lead={activeChatLead} 
+          onClose={() => setActiveChatLead(null)} 
+        />
+      )}
     </div>
   );
 }

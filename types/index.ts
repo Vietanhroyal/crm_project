@@ -58,6 +58,22 @@ export interface AIInsight {
   createdAt: string;
 }
 
+export interface ChatMessage {
+  id: string;
+  sender: "seller" | "lead";
+  text: string;
+  timestamp: Date;
+}
+
+export interface LeadInteraction {
+  id: string;
+  type: "call" | "email" | "meeting" | "note";
+  title: string;
+  content: string;
+  createdAt: string;
+  createdBy: string;
+}
+
 export interface DashboardStats {
   totalLeads: number;
   leadsGrowth: number;
@@ -68,3 +84,11 @@ export interface DashboardStats {
   conversionRate: number;
   conversionGrowth: number;
 }
+
+export interface ChatMessage {
+  id: string;
+  sender: "seller" | "lead";
+  text: string;
+  timestamp: Date;
+}
+
