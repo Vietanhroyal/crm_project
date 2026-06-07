@@ -5,7 +5,9 @@ import { Deal, DealStage } from "@/types";
 import { DEAL_STAGES } from "@/lib/constants";
 import { formatCurrency } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import { isRotting } from "@/lib/deals";
 import { DealScore } from "./deal-score";
+import { DealRottingBadge } from "./deal-rotting-badge";
 import { GripVertical, Calendar, Edit2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -67,9 +69,12 @@ export function DealCard({ deal, onDragEnd, onEdit }: DealCardProps) {
         </Button>
       </div>
 
-      <h4 className="font-semibold text-text-dark text-sm mb-2 line-clamp-2">
-        {deal.title}
-      </h4>
+      <div className="flex items-start gap-2 mb-2">
+        <h4 className="font-semibold text-text-dark text-sm line-clamp-2 flex-1">
+          {deal.title}
+        </h4>
+        {isRotting(deal) && <DealRottingBadge />}
+      </div>
 
       <div className="flex items-center justify-between mb-3">
         <p className="text-lg font-bold text-primary">

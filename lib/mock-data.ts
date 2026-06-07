@@ -1,4 +1,4 @@
-import { Lead, Contact, Deal, Activity, AIInsight, DashboardStats, ConvertLeadData, Company, TimelineItem, RecordType } from "@/types";
+import { Lead, Contact, Deal, Activity, AIInsight, DashboardStats, ConvertLeadData, Company, TimelineItem, RecordType, Product, Quote, QuoteLineItem, ReportDef, Goal, DashboardLayout } from "@/types";
 
 export const companies: Company[] = [
   {
@@ -309,8 +309,11 @@ export const deals: Deal[] = [
     stage: "negotiation",
     probability: 75,
     contactId: "1",
+    companyId: "c1",
     createdAt: "2026-03-15",
     expectedCloseDate: "2026-04-15",
+    status: "open",
+    stageEnteredAt: "2026-05-20",
   },
   {
     id: "2",
@@ -319,8 +322,11 @@ export const deals: Deal[] = [
     stage: "proposal",
     probability: 60,
     contactId: "2",
+    companyId: "c2",
     createdAt: "2026-03-10",
     expectedCloseDate: "2026-04-20",
+    status: "open",
+    stageEnteredAt: "2026-06-01",
   },
   {
     id: "3",
@@ -329,8 +335,11 @@ export const deals: Deal[] = [
     stage: "qualified",
     probability: 40,
     contactId: "3",
+    companyId: "c3",
     createdAt: "2026-03-08",
     expectedCloseDate: "2026-05-01",
+    status: "open",
+    stageEnteredAt: "2026-05-28",
   },
   {
     id: "4",
@@ -339,8 +348,11 @@ export const deals: Deal[] = [
     stage: "lead",
     probability: 25,
     contactId: "4",
+    companyId: "c4",
     createdAt: "2026-03-18",
     expectedCloseDate: "2026-05-15",
+    status: "open",
+    stageEnteredAt: "2026-06-05",
   },
   {
     id: "5",
@@ -351,6 +363,8 @@ export const deals: Deal[] = [
     contactId: "5",
     createdAt: "2026-03-01",
     expectedCloseDate: "2026-03-20",
+    status: "won",
+    wonAt: "2026-03-20",
   },
 ];
 
@@ -441,6 +455,191 @@ export const chartData = [
   { month: "Tháng 6", leads: 52, deals: 18 },
 ];
 
+export const products: Product[] = [
+  {
+    id: "p1",
+    code: "SW-001",
+    name: "Enterprise CRM License",
+    group: "Software",
+    unitPrice: 50000000,
+    currency: "VND",
+    unit: "license/year",
+    defaultTaxPct: 10,
+    description: "Bản quyền phần mềm CRM doanh nghiệp",
+    isActive: true,
+    createdAt: "2026-01-15",
+  },
+  {
+    id: "p2",
+    code: "SW-002",
+    name: "Analytics Module",
+    group: "Software",
+    unitPrice: 25000000,
+    currency: "VND",
+    unit: "license/year",
+    defaultTaxPct: 10,
+    description: "Module phân tích dữ liệu nâng cao",
+    isActive: true,
+    createdAt: "2026-01-20",
+  },
+  {
+    id: "p3",
+    code: "HW-001",
+    name: "Server Hardware Package",
+    group: "Hardware",
+    unitPrice: 150000000,
+    currency: "VND",
+    unit: "set",
+    defaultTaxPct: 10,
+    description: "Gói server tích hợp",
+    isActive: true,
+    createdAt: "2026-02-01",
+  },
+  {
+    id: "p4",
+    code: "SVC-001",
+    name: "Implementation Service",
+    group: "Services",
+    unitPrice: 80000000,
+    currency: "VND",
+    unit: "project",
+    defaultTaxPct: 0,
+    description: "Dịch vụ triển khai và cấu hình",
+    isActive: true,
+    createdAt: "2026-02-10",
+  },
+  {
+    id: "p5",
+    code: "TR-001",
+    name: "Training Package",
+    group: "Training",
+    unitPrice: 15000000,
+    currency: "VND",
+    unit: "session",
+    defaultTaxPct: 10,
+    description: "Đào tạo sử dụng phần mềm",
+    isActive: false,
+    createdAt: "2026-02-15",
+  },
+  {
+    id: "p6",
+    code: "SP-001",
+    name: "Premium Support",
+    group: "Support",
+    unitPrice: 20000000,
+    currency: "VND",
+    unit: "year",
+    defaultTaxPct: 10,
+    description: "Hỗ trợ kỹ thuật 24/7",
+    isActive: true,
+    createdAt: "2026-03-01",
+  },
+];
+
+export const quoteLineItems: QuoteLineItem[] = [
+  {
+    id: "qli1",
+    quoteId: "q1",
+    productId: "p1",
+    name: "Enterprise CRM License",
+    qty: 2,
+    unitPrice: 50000000,
+    discountPct: 10,
+    taxPct: 10,
+    total: 99000000,
+  },
+  {
+    id: "qli2",
+    quoteId: "q1",
+    productId: "p2",
+    name: "Analytics Module",
+    qty: 1,
+    unitPrice: 25000000,
+    discountPct: 0,
+    taxPct: 10,
+    total: 27500000,
+  },
+  {
+    id: "qli3",
+    quoteId: "q2",
+    productId: "p1",
+    name: "Enterprise CRM License",
+    qty: 1,
+    unitPrice: 50000000,
+    discountPct: 15,
+    taxPct: 10,
+    total: 46750000,
+  },
+  {
+    id: "qli4",
+    quoteId: "q2",
+    productId: "p4",
+    name: "Implementation Service",
+    qty: 1,
+    unitPrice: 80000000,
+    discountPct: 0,
+    taxPct: 0,
+    total: 80000000,
+  },
+];
+
+export const quotes: Quote[] = [
+  {
+    id: "q1",
+    number: "Q-2026-001",
+    title: "Báo giá CRM cho Công ty ABC",
+    dealId: "1",
+    companyId: "c1",
+    contactId: "1",
+    status: "draft",
+    validUntil: "2026-07-15",
+    subtotal: 125000000,
+    discountTotal: 12500000,
+    taxTotal: 11250000,
+    total: 123750000,
+    currency: "VND",
+    terms: "Thanh toán 50% trước khi triển khai, 50% còn lại sau khi bàn giao.",
+    createdAt: "2026-06-01",
+  },
+  {
+    id: "q2",
+    number: "Q-2026-002",
+    title: "Báo giá XYZ Corp - Full Suite",
+    dealId: "2",
+    companyId: "c2",
+    contactId: "2",
+    status: "sent",
+    validUntil: "2026-07-01",
+    subtotal: 130000000,
+    discountTotal: 19500000,
+    taxTotal: 9350000,
+    total: 110500000,
+    currency: "VND",
+    terms: "Thanh toán theo tiến độ triển khai.",
+    createdAt: "2026-06-05",
+    sentAt: "2026-06-06",
+  },
+  {
+    id: "q3",
+    number: "Q-2026-003",
+    title: "Báo giá Tech Solutions - Cloud",
+    dealId: "3",
+    companyId: "c3",
+    contactId: "3",
+    status: "accepted",
+    validUntil: "2026-06-20",
+    subtotal: 85000000,
+    discountTotal: 8500000,
+    taxTotal: 7650000,
+    total: 83650000,
+    currency: "VND",
+    terms: "Thanh toán 100% trước khi bàn giao.",
+    createdAt: "2026-05-25",
+    sentAt: "2026-05-26",
+    decidedAt: "2026-06-01",
+  },
+];
+
 const nextId = () => Date.now().toString();
 
 const getDealProbability = (stage: Deal["stage"]) => {
@@ -494,4 +693,198 @@ export function convertLeadToDeal(
   deals.push(deal);
 
   return { deal, contact };
+}
+
+// ── U7 Analytics ──────────────────────────────────────────────────────────────
+
+export const reportDefs: ReportDef[] = [
+  {
+    id: "preset-1",
+    name: "Pipeline theo giai đoạn",
+    entity: "deal",
+    chartType: "bar",
+    dimension: "stage",
+    measure: "sum_value",
+    filters: { status: "open" },
+    isShared: true,
+    createdAt: "2026-06-01",
+  },
+  {
+    id: "preset-2",
+    name: "Chuyển đổi theo nguồn",
+    entity: "lead",
+    chartType: "pie",
+    dimension: "source",
+    measure: "conversion_rate",
+    filters: {},
+    isShared: true,
+    createdAt: "2026-06-01",
+  },
+  {
+    id: "preset-3",
+    name: "Lý do thua deal",
+    entity: "deal",
+    chartType: "pie",
+    dimension: "loss_reason",
+    measure: "count",
+    filters: { status: "lost" },
+    isShared: true,
+    createdAt: "2026-06-01",
+  },
+  {
+    id: "preset-4",
+    name: "Hoạt động theo nhân viên",
+    entity: "activity",
+    chartType: "bar",
+    dimension: "owner",
+    measure: "count",
+    filters: {},
+    isShared: true,
+    createdAt: "2026-06-01",
+  },
+  {
+    id: "preset-5",
+    name: "Doanh thu theo tháng",
+    entity: "deal",
+    chartType: "line",
+    dimension: "month",
+    measure: "sum_value",
+    filters: { status: "won" },
+    isShared: true,
+    createdAt: "2026-06-01",
+  },
+  {
+    id: "preset-6",
+    name: "Deal sắp đóng",
+    entity: "deal",
+    chartType: "table",
+    dimension: "stage",
+    measure: "sum_value",
+    filters: { status: "open" },
+    isShared: true,
+    createdAt: "2026-06-01",
+  },
+];
+
+export const goals: Goal[] = [
+  {
+    id: "g1",
+    ownerId: "u1",
+    isTeam: false,
+    period: "quarter",
+    periodKey: "2026-Q2",
+    metric: "revenue",
+    target: 1000000000,
+  },
+  {
+    id: "g2",
+    ownerId: "u2",
+    isTeam: false,
+    period: "month",
+    periodKey: "2026-06",
+    metric: "deals_won",
+    target: 3,
+  },
+  {
+    id: "g3",
+    isTeam: true,
+    period: "quarter",
+    periodKey: "2026-Q2",
+    metric: "revenue",
+    target: 3000000000,
+  },
+];
+
+export const dashboardLayout: DashboardLayout = {
+  userId: "u1",
+  widgets: [
+    { id: "w1", type: "kpi", title: "Total Revenue", w: 3, h: 1, x: 0, y: 0 },
+    { id: "w2", type: "kpi", title: "Active Deals", w: 3, h: 1, x: 3, y: 0 },
+    { id: "w3", type: "kpi", title: "Conversion Rate", w: 3, h: 1, x: 6, y: 0 },
+    { id: "w4", type: "kpi", title: "Total Leads", w: 3, h: 1, x: 9, y: 0 },
+    { id: "w5", type: "saved-report", refId: "preset-1", title: "Pipeline theo giai đoạn", w: 6, h: 2, x: 0, y: 1 },
+    { id: "w6", type: "forecast", title: "Forecast Q2", w: 6, h: 2, x: 6, y: 1 },
+    { id: "w7", type: "quota", title: "Quota của tôi", w: 4, h: 2, x: 0, y: 3 },
+    { id: "w8", type: "my-day", title: "Việc hôm nay", w: 8, h: 2, x: 4, y: 3 },
+  ],
+};
+
+// ── U4 Communication ──────────────────────────────────────────────────────────
+
+import { EmailTemplate, Attachment, MentionUser } from "@/types";
+
+export const mentionUsers: MentionUser[] = [
+  { id: "u1", name: "Hoàng An", email: "hoangan@company.com" },
+  { id: "u2", name: "Trần Bình", email: "tranbinh@company.com" },
+  { id: "u3", name: "Lê Châu", email: "lechau@company.com" },
+  { id: "u4", name: "Nguyễn Dung", email: "nguyendung@company.com" },
+];
+
+export const emailTemplates: EmailTemplate[] = [
+  {
+    id: "tpl1",
+    name: "Giới thiệu dịch vụ",
+    subject: "Giới thiệu giải pháp CRM cho {{company.name}}",
+    body: "Kính gửi {{contact.name}},\n\nChúng tôi xin gửi tới quý công ty {{company.name}} thông tin về giải pháp CRM của chúng tôi.\n\nTrân trọng,\n{{owner.name}}",
+    isShared: true,
+  },
+  {
+    id: "tpl2",
+    name: "Gửi báo giá",
+    subject: "Báo giá dành cho {{company.name}} — {{deal.title}}",
+    body: "Kính gửi {{contact.name}},\n\nVui lòng xem báo giá đính kèm cho dự án {{deal.title}}.\n\nTrân trọng,\n{{owner.name}}",
+    isShared: false,
+    ownerId: "u1",
+  },
+  {
+    id: "tpl3",
+    name: "Follow-up sau cuộc gọi",
+    subject: "Cảm ơn cuộc trò chuyện — {{contact.name}}",
+    body: "Kính gửi {{contact.name}},\n\nCảm ơn bạn đã dành thời gian nói chuyện hôm nay. Như đã trao đổi, tôi sẽ gửi thêm thông tin về {{deal.title}}.\n\nTrân trọng,\n{{owner.name}}",
+    isShared: true,
+  },
+];
+
+// In-memory stores for U4 data
+const attachmentStore: Record<string, Attachment[]> = {
+  "company:c1": [
+    {
+      id: "att1",
+      relatedType: "company",
+      relatedId: "c1",
+      fileName: "hop-dong-abc.pdf",
+      mimeType: "application/pdf",
+      sizeBytes: 2_400_000,
+      url: "/uploads/hop-dong-abc.pdf",
+      uploadedBy: "Trần Bình",
+      createdAt: "06/06/2026",
+    },
+    {
+      id: "att2",
+      relatedType: "company",
+      relatedId: "c1",
+      fileName: "bao-gia.xlsx",
+      mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      sizeBytes: 180_000,
+      url: "/uploads/bao-gia.xlsx",
+      uploadedBy: "Trần Bình",
+      createdAt: "05/06/2026",
+    },
+  ],
+};
+
+export function getAttachments(relatedType: string, relatedId: string): Attachment[] {
+  return attachmentStore[`${relatedType}:${relatedId}`] || [];
+}
+
+export function addAttachment(attachment: Attachment): void {
+  const key = `${attachment.relatedType}:${attachment.relatedId}`;
+  if (!attachmentStore[key]) attachmentStore[key] = [];
+  attachmentStore[key].unshift(attachment);
+}
+
+export function removeAttachment(id: string): void {
+  for (const key of Object.keys(attachmentStore)) {
+    attachmentStore[key] = attachmentStore[key].filter((a) => a.id !== id);
+  }
 }

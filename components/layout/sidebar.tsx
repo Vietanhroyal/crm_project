@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { NAV_ITEMS } from "@/lib/constants";
+import { useI18n } from "@/lib/i18n";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "./sidebar-context";
@@ -16,6 +17,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Building2,
+  Package,
+  FileText,
 } from "lucide-react";
 
 const iconMap: Record<string, React.ElementType> = {
@@ -27,11 +30,24 @@ const iconMap: Record<string, React.ElementType> = {
   BarChart3,
   Settings,
   Building2,
+  Package,
+  FileText,
 };
 
 export function Sidebar() {
   const pathname = usePathname();
   const { isCollapsed, toggleSidebar } = useSidebar();
+  const { t } = useI18n();
+
+  const navLabelMap: Record<string, string> = {
+    Dashboard: t("nav.dashboard"),
+    Leads: t("nav.leads"),
+    Contacts: t("nav.contacts"),
+    Deals: t("nav.deals"),
+    Activities: t("nav.activities"),
+    Reports: t("nav.reports"),
+    Settings: t("nav.settings"),
+  };
 
   return (
     <aside
@@ -64,7 +80,9 @@ export function Sidebar() {
         <ul className="space-y-1">
           {NAV_ITEMS.map((item) => {
             const Icon = iconMap[item.icon];
-            const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
+            const currentPath = pathname ?? "";
+            const isActive = currentPath === item.href || (item.href !== "/" && currentPath.startsWith(item.href));
+            const label = navLabelMap[item.label] || item.label;
 
             return (
               <li key={item.href}>
@@ -79,10 +97,10 @@ export function Sidebar() {
                       ? "bg-primary text-white shadow-lg shadow-primary/25"
                       : "text-text-muted hover:bg-primary/5 hover:text-text-dark"
                   )}
-                  title={isCollapsed ? item.label : undefined}
+                  title={isCollapsed ? label : undefined}
                 >
                   <Icon className="w-5 h-5 flex-shrink-0" />
-                  {!isCollapsed && <span>{item.label}</span>}
+                  {!isCollapsed && <span>{label}</span>}
                 </Link>
               </li>
             );

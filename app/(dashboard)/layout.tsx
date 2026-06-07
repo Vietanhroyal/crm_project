@@ -1,19 +1,24 @@
 "use client";
 
+import { useState } from "react";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { SidebarProvider, useSidebar } from "@/components/layout/sidebar-context";
+import { I18nProvider } from "@/lib/i18n";
+import { CommandPalette } from "@/components/search/command-palette";
 import { cn } from "@/lib/utils";
 
 function DashboardContent({ children }: { children: React.ReactNode }) {
   const { isCollapsed } = useSidebar();
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-background">
       <Sidebar />
       <MobileNav />
-      <Header />
+      <Header onSearchClick={() => setIsSearchOpen(true)} />
+      <CommandPalette open={isSearchOpen} onOpenChange={setIsSearchOpen} />
       <div
         className={cn(
           "transition-all duration-300 ease-in-out pt-14",
@@ -33,7 +38,9 @@ export default function DashboardLayout({
 }) {
   return (
     <SidebarProvider>
-      <DashboardContent>{children}</DashboardContent>
+      <I18nProvider>
+        <DashboardContent>{children}</DashboardContent>
+      </I18nProvider>
     </SidebarProvider>
   );
 }

@@ -1,9 +1,11 @@
 "use client";
 
-import { Bell, Search, ChevronDown, Sparkles } from "lucide-react";
+import { Bell, Search, ChevronDown, Sparkles, Command } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSidebar } from "./sidebar-context";
+import { useI18n } from "@/lib/i18n";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -15,8 +17,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
-export function Header() {
+interface HeaderProps {
+  onSearchClick?: () => void;
+}
+
+export function Header({ onSearchClick }: HeaderProps) {
   const { isCollapsed } = useSidebar();
+  const { t } = useI18n();
 
   return (
     <header
@@ -30,17 +37,20 @@ export function Header() {
           <div className="relative max-w-md flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
             <Input
-              placeholder="Search leads, deals, contacts..."
-              className="pl-10 bg-gray-50/50 border-0"
+              placeholder={t("search.placeholder")}
+              className="pl-10 bg-gray-50/50 border-0 cursor-pointer"
+              readOnly
+              onClick={onSearchClick}
             />
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-xs text-text-muted bg-gray-100 px-1.5 py-0.5 rounded">
+              <Command className="w-3 h-3" />
+              <span>K</span>
+            </div>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="w-5 h-5 text-text-muted" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-cta rounded-full" />
-          </Button>
+          <NotificationBell />
 
           <Button variant="cta" size="sm" className="gap-2">
             <Sparkles className="w-4 h-4" />

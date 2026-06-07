@@ -1,9 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { TimelineItemType } from "@/types";
+import { TimelineItemType, TimelineItem, RecordType, Activity } from "@/types";
 import { Button } from "@/components/ui/button";
 import { PhoneCall, Mail, Calendar, FileText, CheckSquare } from "lucide-react";
+import { MentionInput } from "@/components/comm/mention-input";
+import { CallLogDialog } from "@/components/comm/call-log-dialog";
+import { EmailComposerDialog } from "@/components/comm/email-composer-dialog";
+import { mentionUsers } from "@/lib/mock-data";
 
 const typeConfig: Record<
   TimelineItemType,
@@ -18,71 +22,132 @@ const typeConfig: Record<
 };
 
 interface TimelineComposerProps {
-  onSubmit: (data: { type: TimelineItemType; title: string; content: string }) => void;
+  recordType: RecordType;
+  recordId: string;
+  defaultTo?: string;
+  ctx?: Record<string, string>;
+  onSubmit: (item: TimelineItem, followUpTask?: Omit<Activity, "id">) => void;
 }
 
-export function TimelineComposer({ onSubmit }: TimelineComposerProps) {
+export function TimelineComposer({
+  recordType,
+  recordId,
+  defaultTo = "",
+  ctx = {},
+  onSubmit,
+}: TimelineComposerProps) {
   const [activeType, setActiveType] = useState<TimelineItemType>("note");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [mentions, setMentions] = useState<string[]>([]);
+  const [callOpen, setCallOpen] = useState(false);
+  const [emailOpen, setEmailOpen] = useState(false);
 
   const composableTypes: TimelineItemType[] = ["note", "call", "email", "meeting", "task"];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleTabClick = (type: TimelineItemType) => {
+    setActiveType(type);
+    if (type === "call") { setCallOpen(true); return; }
+    if (type === "email") { setEmailOpen(true); return; }
+  };
+
+  const handleInlineSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!content.trim()) return;
-    onSubmit({
+    const item: TimelineItem = {
+      id: `tl-${Date.now()}`,
       type: activeType,
       title: title.trim() || typeConfig[activeType].label,
       content: content.trim(),
-    });
+      createdAt: new Date().toLocaleString("vi-VN"),
+      createdBy: "Bạn",
+      meta: mentions.length ? { mentions } : undefined,
+    };
+    onSubmit(item);
     setTitle("");
     setContent("");
+    setMentions([]);
   };
 
+  const isDialog = activeType === "call" || activeType === "email";
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-4 bg-gray-50 rounded-xl">
-      <div className="flex gap-2 flex-wrap">
-        {composableTypes.map((type) => {
-          const config = typeConfig[type];
-          const Icon = config.icon;
-          return (
-            <button
-              key={type}
-              type="button"
-              onClick={() => setActiveType(type)}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                activeType === type
-                  ? `${config.color} ring-2 ring-offset-2 ring-indigo-500`
-                  : "bg-white text-text-muted hover:bg-gray-100"
-              }`}
-            >
-              <Icon className="w-4 h-4" />
-              {config.label}
-            </button>
-          );
-        })}
+    <>
+      <div className="space-y-4 p-4 bg-gray-50 rounded-xl">
+        <div className="flex gap-2 flex-wrap">
+          {composableTypes.map((type) => {
+            const config = typeConfig[type];
+            const Icon = config.icon;
+            return (
+              <button
+                key={type}
+                type="button"
+                onClick={() => handleTabClick(type)}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                  activeType === type
+                    ? `${config.color} ring-2 ring-offset-2 ring-indigo-500`
+                    : "bg-white text-text-muted hover:bg-gray-100"
+                }`}
+              >
+                <Icon className="w-4 h-4" />
+                {config.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {!isDialog && (
+          <form onSubmit={handleInlineSubmit} className="space-y-3">
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Tiêu đề (tùy chọn)"
+              className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm"
+            />
+            {activeType === "note" ? (
+              <MentionInput
+                value={content}
+                onChange={setContent}
+                onMentionsChange={setMentions}
+                users={mentionUsers}
+              />
+            ) : (
+              <textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Nhập nội dung..."
+                rows={3}
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm resize-none"
+              />
+            )}
+            <div className="flex justify-end">
+              <Button type="submit" className="bg-indigo-600 hover:bg-indigo-700">
+                Lưu lại
+              </Button>
+            </div>
+          </form>
+        )}
       </div>
-      <input
-        type="text"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="Tiêu đề (tùy chọn)"
-        className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm"
+
+      <CallLogDialog
+        open={callOpen}
+        onOpenChange={(v) => { setCallOpen(v); if (!v) setActiveType("note"); }}
+        relatedType={recordType}
+        relatedId={recordId}
+        onLogged={(item, followUp) => { onSubmit(item, followUp); setActiveType("note"); }}
       />
-      <textarea
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        placeholder="Nhập nội dung tương tác hoặc ghi chú..."
-        rows={3}
-        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm resize-none"
+
+      <EmailComposerDialog
+        open={emailOpen}
+        onOpenChange={(v) => { setEmailOpen(v); if (!v) setActiveType("note"); }}
+        relatedType={recordType}
+        relatedId={recordId}
+        defaultTo={defaultTo}
+        ctx={ctx}
+        onLogged={(item) => { onSubmit(item); setActiveType("note"); }}
       />
-      <div className="flex justify-end">
-        <Button type="submit" className="bg-indigo-600 hover:bg-indigo-700">
-          Lưu lại
-        </Button>
-      </div>
-    </form>
+    </>
   );
 }
 

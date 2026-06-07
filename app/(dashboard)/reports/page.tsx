@@ -1,10 +1,14 @@
 "use client";
 
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { dashboardStats, chartData, leads, deals } from "@/lib/mock-data";
+import { dashboardStats, chartData, leads, deals, activities, quotes, reportDefs } from "@/lib/mock-data";
 import { formatCurrency } from "@/lib/utils";
-import { Download, TrendingUp, Users, Target, DollarSign } from "lucide-react";
+import { ReportDef } from "@/types";
+import { runReport } from "@/lib/analytics";
+import { Download, TrendingUp, Users, Target, DollarSign, Plus, BarChart3, LineChart as LineChartIcon, PieChart as PieChartIcon, Table, Calculator } from "lucide-react";
+import Link from "next/link";
 import {
   BarChart,
   Bar,
@@ -46,6 +50,15 @@ const dealStageData = deals.reduce((acc, deal) => {
 }, [] as { name: string; value: number }[]);
 
 export default function ReportsPage() {
+  const data = useMemo(() => ({ leads, deals, activities, quotes }), []);
+
+  const presetCharts = useMemo(() => {
+    return reportDefs.slice(0, 6).map((def) => ({
+      def,
+      data: runReport(def, data),
+    }));
+  }, [data]);
+
   const statsCards = [
     {
       label: "Total Revenue",
@@ -88,11 +101,84 @@ export default function ReportsPage() {
           <h1 className="text-3xl font-bold font-poppins text-text-dark">Reports</h1>
           <p className="text-text-muted mt-1">Analytics and insights for your sales performance</p>
         </div>
-        <Button variant="outline" className="gap-2">
-          <Download className="w-4 h-4" />
-          Export Report
-        </Button>
+        <div className="flex gap-2">
+          <Link href="/reports/builder">
+            <Button className="gap-2">
+              <Plus className="w-4 h-4" />
+              Tạo báo cáo
+            </Button>
+          </Link>
+          <Button variant="outline" className="gap-2">
+            <Download className="w-4 h-4" />
+            Export Report
+          </Button>
+        </div>
       </div>
+
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Báo cáo nhanh</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {presetCharts.map(({ def, data: chartData }) => (
+              <Card key={def.id} className="hover:shadow-md transition-shadow cursor-pointer">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium">{def.name}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[150px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      {def.chartType === "bar" ? (
+                        <BarChart data={chartData}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
+                          <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                          <YAxis tick={{ fontSize: 10 }} />
+                          <Bar dataKey="value" fill={COLORS[0]} radius={[2, 2, 0, 0]} />
+                        </BarChart>
+                      ) : def.chartType === "line" ? (
+                        <LineChart data={chartData}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
+                          <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                          <YAxis tick={{ fontSize: 10 }} />
+                          <Line type="monotone" dataKey="value" stroke={COLORS[0]} dot={false} />
+                        </LineChart>
+                      ) : def.chartType === "pie" ? (
+                        <PieChart>
+                          <Pie data={chartData} dataKey="value" nameKey="name" innerRadius={30} outerRadius={50}>
+                            {chartData.map((_, i) => (
+                              <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                            ))}
+                          </Pie>
+                        </PieChart>
+                      ) : def.chartType === "table" ? (
+                        <div className="overflow-auto text-xs">
+                          <table className="w-full">
+                            <tbody>
+                              {chartData.slice(0, 5).map((row, i) => (
+                                <tr key={i} className="border-b">
+                                  <td className="py-1">{row.name}</td>
+                                  <td className="text-right">{row.value}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center h-full">
+                          <span className="text-2xl font-bold text-primary">
+                            {chartData.reduce((s, r) => s + r.value, 0).toLocaleString("vi-VN")}
+                          </span>
+                        </div>
+                      )}
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {statsCards.map((stat, index) => (

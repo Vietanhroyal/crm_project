@@ -1,6 +1,34 @@
 export type RecordType = "lead" | "contact" | "deal" | "company";
 export type TimelineItemType = "note" | "call" | "email" | "meeting" | "task" | "system";
 
+export interface MentionUser { id: string; name: string; email?: string; }
+
+export interface EmailTemplate {
+  id: string; name: string; subject: string; body: string;
+  ownerId?: string; isShared: boolean;
+}
+
+export interface EmailLog {
+  id: string; relatedType: RecordType; relatedId: string;
+  to: string; cc?: string; bcc?: string; subject: string; body: string;
+  attachments?: string[]; direction: "out" | "in";
+  status: "logged" | "sent" | "draft";
+  sentBy: string; sentAt: string;
+}
+
+export interface CallLog {
+  id: string; relatedType: RecordType; relatedId: string;
+  direction: "out" | "in";
+  outcome: "connected" | "no_answer" | "busy" | "voicemail" | "wrong_number";
+  durationMin?: number; note?: string; loggedBy: string; createdAt: string;
+}
+
+export interface Attachment {
+  id: string; relatedType: RecordType; relatedId: string;
+  fileName: string; mimeType: string; sizeBytes: number; url: string;
+  uploadedBy: string; createdAt: string;
+}
+
 export interface TimelineItem {
   id: string;
   type: TimelineItemType;
@@ -32,6 +60,13 @@ export type LeadStatus = "new" | "contacted" | "qualified" | "lost";
 export type DealStage = "lead" | "qualified" | "proposal" | "negotiation" | "won" | "lost";
 export type ActivityType = "call" | "email" | "meeting" | "task";
 export type ActivityStatus = "pending" | "completed" | "overdue";
+export type ActivityPriority = "high" | "medium" | "low";
+export type RecurrenceFreq = "daily" | "weekly" | "monthly";
+export interface RecurrenceRule {
+  freq: RecurrenceFreq;
+  interval: number;
+  until?: string;
+}
 export type InsightPriority = "high" | "medium" | "low";
 
 export type ReminderStatus = "pending" | "completed" | "overdue" | "snoozed";
@@ -111,6 +146,8 @@ export interface Contact {
   createdAt?: string;
 }
 
+export type DealStatus = "open" | "won" | "lost";
+
 export interface Deal {
   id: string;
   title: string;
@@ -120,6 +157,45 @@ export interface Deal {
   contactId: string;
   createdAt: string;
   expectedCloseDate: string;
+  pipelineId?: string;
+  companyId?: string;
+  ownerId?: string;
+  status?: DealStatus;
+  wonAt?: string;
+  lostAt?: string;
+  lossReason?: string;
+  competitor?: string;
+  stageEnteredAt?: string;
+}
+
+export interface DealLineItem {
+  id: string;
+  dealId: string;
+  productId?: string;
+  name: string;
+  qty: number;
+  unitPrice: number;
+  discountPct: number;
+  taxPct?: number;
+  total: number;
+}
+
+export interface PipelineStage {
+  id: string;
+  label: string;
+  color: string;
+  probability: number;
+}
+
+export interface Pipeline {
+  id: string;
+  name: string;
+  stages: PipelineStage[];
+}
+
+export interface LossReason {
+  id: string;
+  label: string;
 }
 
 export interface ConvertLeadData {
@@ -140,6 +216,13 @@ export interface Activity {
   contactId?: string;
   dueDate: string;
   status: ActivityStatus;
+  priority?: ActivityPriority;
+  remindAt?: string;
+  relatedType?: RecordType;
+  relatedId?: string;
+  recurrence?: RecurrenceRule;
+  ownerId?: string;
+  completedAt?: string;
 }
 
 export interface AIInsight {
@@ -301,4 +384,219 @@ export interface Alert {
   severity: 'warning' | 'error';
   entityId?: number;
   createdAt: string;
+}
+
+export interface EmailLog {
+  id: string;
+  relatedType: RecordType;
+  relatedId: string;
+  to: string;
+  cc?: string;
+  bcc?: string;
+  subject: string;
+  body: string;
+  attachments?: string[];
+  direction: "out" | "in";
+  status: "logged" | "sent" | "draft";
+  sentBy: string;
+  sentAt: string;
+}
+
+export interface CallLog {
+  id: string;
+  relatedType: RecordType;
+  relatedId: string;
+  direction: "out" | "in";
+  outcome: "connected" | "no_answer" | "busy" | "voicemail" | "wrong_number";
+  durationMin?: number;
+  note?: string;
+  loggedBy: string;
+  createdAt: string;
+}
+
+export interface Note {
+  id: string;
+  relatedType: RecordType;
+  relatedId: string;
+  body: string;
+  mentions: string[];
+  createdBy: string;
+  createdAt: string;
+}
+
+export interface Attachment {
+  id: string;
+  relatedType: RecordType;
+  relatedId: string;
+  fileName: string;
+  mimeType: string;
+  sizeBytes: number;
+  url: string;
+  uploadedBy: string;
+  createdAt: string;
+}
+
+export interface EmailTemplate {
+  id: string;
+  name: string;
+  subject: string;
+  body: string;
+  ownerId?: string;
+  isShared: boolean;
+}
+
+export interface Product {
+  id: string;
+  code?: string;
+  name: string;
+  group?: string;
+  unitPrice: number;
+  currency: "VND" | "USD";
+  unit?: string;
+  defaultTaxPct?: number;
+  description?: string;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export type QuoteStatus = "draft" | "sent" | "accepted" | "rejected" | "expired";
+
+export interface QuoteLineItem {
+  id: string;
+  quoteId: string;
+  productId?: string;
+  name: string;
+  qty: number;
+  unitPrice: number;
+  discountPct: number;
+  taxPct: number;
+  total: number;
+}
+
+export interface Quote {
+  id: string;
+  number: string;
+  title: string;
+  dealId?: string;
+  companyId?: string;
+  contactId?: string;
+  status: QuoteStatus;
+  validUntil?: string;
+  subtotal: number;
+  discountTotal: number;
+  taxTotal: number;
+  total: number;
+  currency: "VND" | "USD";
+  terms?: string;
+  ownerId?: string;
+  createdAt: string;
+  sentAt?: string;
+  decidedAt?: string;
+}
+
+export interface Notification {
+  id: string;
+  userId: string;
+  type: "mention" | "assignment" | "reminder" | "deal_stage" | "quote_accepted" | "system";
+  title: string;
+  body?: string;
+  link?: string;
+  isRead: boolean;
+  createdAt: string;
+}
+
+export interface SavedView {
+  id: string;
+  userId: string;
+  entity: RecordType;
+  name: string;
+  filters: Record<string, unknown>;
+  columns: string[];
+  sort?: string;
+  isShared: boolean;
+}
+
+export type CustomFieldType = "text" | "number" | "date" | "select" | "checkbox";
+
+export interface CustomFieldDef {
+  id: string;
+  entity: RecordType;
+  key: string;
+  label: string;
+  type: CustomFieldType;
+  options?: string[];
+  required: boolean;
+  order: number;
+}
+
+export interface CustomFieldValue {
+  entity: RecordType;
+  recordId: string;
+  fieldKey: string;
+  value: string;
+}
+
+export interface SearchResult {
+  type: RecordType | "action";
+  id: string;
+  title: string;
+  subtitle?: string;
+  link: string;
+}
+
+export interface UserPrefs {
+  language: "vi" | "en";
+  timezone: string;
+  density: "compact" | "comfortable";
+  emailSignature?: string;
+  notify: Record<string, boolean>;
+}
+
+// ── U7 Analytics ──────────────────────────────────────────────────────────────
+
+export type ReportEntity = "lead" | "deal" | "activity" | "quote";
+export type ChartType = "bar" | "line" | "pie" | "table" | "kpi";
+
+export interface ReportDef {
+  id: string;
+  name: string;
+  entity: ReportEntity;
+  chartType: ChartType;
+  dimension: string;
+  measure: string;
+  filters: Record<string, unknown>;
+  ownerId?: string;
+  isShared: boolean;
+  createdAt: string;
+}
+
+export interface Goal {
+  id: string;
+  ownerId?: string;
+  isTeam: boolean;
+  period: "month" | "quarter";
+  periodKey: string; // e.g. "2026-Q2" or "2026-06"
+  metric: "revenue" | "deals_won";
+  target: number;
+}
+
+export interface ForecastBucket {
+  category: "committed" | "best_case" | "pipeline";
+  value: number;
+}
+
+export interface DashboardWidget {
+  id: string;
+  type: "kpi" | "saved-report" | "quota" | "my-day" | "forecast";
+  refId?: string;
+  w: number;
+  h: number;
+  x: number;
+  y: number;
+  title?: string;
+}
+
+export interface DashboardLayout {
+  userId: string;
+  widgets: DashboardWidget[];
 }

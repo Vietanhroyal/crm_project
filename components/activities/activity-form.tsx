@@ -1,10 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Activity, ActivityType, ActivityStatus } from "@/types";
+import { Activity, ActivityType, ActivityStatus, ActivityPriority, RecordType } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Phone, Mail, Calendar, CheckCircle } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Phone, Mail, Calendar, CheckCircle, Clock, Bell } from "lucide-react";
+import { RecurrenceEditor } from "./recurrence-editor";
+import { RelatedRecordPicker } from "./related-record-picker";
+import { PriorityBadge } from "./priority-badge";
 
 interface ActivityFormProps {
   activity?: Activity | null;
@@ -19,18 +23,25 @@ const typeOptions: { value: ActivityType; label: string; icon: React.ElementType
   { value: "task", label: "Task", icon: CheckCircle },
 ];
 
-const statusOptions: { value: ActivityStatus; label: string }[] = [
-  { value: "pending", label: "Pending" },
-  { value: "completed", label: "Completed" },
-  { value: "overdue", label: "Overdue" },
+const priorityOptions: { value: ActivityPriority; label: string }[] = [
+  { value: "high", label: "High" },
+  { value: "medium", label: "Medium" },
+  { value: "low", label: "Low" },
 ];
 
 export function ActivityForm({ activity, onClose, onSubmit }: ActivityFormProps) {
   const [title, setTitle] = useState(activity?.title || "");
   const [type, setType] = useState<ActivityType>(activity?.type || "task");
   const [dueDate, setDueDate] = useState(activity?.dueDate || "");
-  const [status, setStatus] = useState<ActivityStatus>(activity?.status || "pending");
   const [description, setDescription] = useState(activity?.description || "");
+  const [priority, setPriority] = useState<ActivityPriority>(activity?.priority || "medium");
+  const [remindAt, setRemindAt] = useState(activity?.remindAt || "");
+  const [related, setRelated] = useState<{ type: RecordType; id: string } | undefined>(
+    activity?.relatedType && activity?.relatedId
+      ? { type: activity.relatedType, id: activity.relatedId }
+      : undefined
+  );
+  const [recurrence, setRecurrence] = useState(activity?.recurrence);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,14 +52,19 @@ export function ActivityForm({ activity, onClose, onSubmit }: ActivityFormProps)
       title,
       description,
       dueDate,
-      status,
+      status: activity?.status || "pending",
+      priority,
+      remindAt: remindAt || undefined,
+      relatedType: related?.type,
+      relatedId: related?.id,
+      recurrence,
     });
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <label className="text-sm font-medium text-text-dark">Title</label>
+        <Label className="text-text-dark">Title</Label>
         <Input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
@@ -58,7 +74,7 @@ export function ActivityForm({ activity, onClose, onSubmit }: ActivityFormProps)
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium text-text-dark">Type</label>
+        <Label className="text-text-dark">Type</Label>
         <div className="flex gap-2">
           {typeOptions.map((option) => {
             const Icon = option.icon;
@@ -81,9 +97,33 @@ export function ActivityForm({ activity, onClose, onSubmit }: ActivityFormProps)
         </div>
       </div>
 
+      <div className="space-y-2">
+        <Label className="text-text-dark">Priority</Label>
+        <div className="flex gap-2">
+          {priorityOptions.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => setPriority(option.value)}
+              className={`flex-1 flex items-center justify-center px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                priority === option.value
+                  ? option.value === "high"
+                    ? "bg-red-500 text-white"
+                    : option.value === "medium"
+                    ? "bg-yellow-500 text-white"
+                    : "bg-green-500 text-white"
+                  : "bg-gray-100 text-text-muted hover:bg-gray-200"
+              }`}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <label className="text-sm font-medium text-text-dark">Due Date</label>
+          <Label className="text-text-dark">Due Date</Label>
           <Input
             type="date"
             value={dueDate}
@@ -92,23 +132,21 @@ export function ActivityForm({ activity, onClose, onSubmit }: ActivityFormProps)
           />
         </div>
         <div className="space-y-2">
-          <label className="text-sm font-medium text-text-dark">Status</label>
-          <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value as ActivityStatus)}
-            className="flex h-11 w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-          >
-            {statusOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+          <Label className="text-text-dark">Remind At</Label>
+          <Input
+            type="datetime-local"
+            value={remindAt}
+            onChange={(e) => setRemindAt(e.target.value)}
+          />
         </div>
       </div>
 
+      <RelatedRecordPicker value={related} onChange={setRelated} />
+
+      <RecurrenceEditor value={recurrence} onChange={setRecurrence} />
+
       <div className="space-y-2">
-        <label className="text-sm font-medium text-text-dark">Description</label>
+        <Label className="text-text-dark">Description</Label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}

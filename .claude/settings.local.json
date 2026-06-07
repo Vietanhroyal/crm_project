@@ -11,7 +11,9 @@
       "Bash(cd /c/workspace/Engineering/crm_project && npm run build 2>&1)",
       "Bash(curl:*)",
       "Bash(ls:*)",
-      "Read(//Users/dev/**)"
+      "Read(//Users/dev/**)",
+      "Bash(xargs grep -l \"recharts\")",
+      "Bash(npx tsc *)"
     ]
   }
 }

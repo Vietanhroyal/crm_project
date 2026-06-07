@@ -13,6 +13,8 @@ import { BulkActions } from "@/components/leads/bulk-actions";
 import { Button } from "@/components/ui/button";
 import { Plus, Download, Search, Filter, X, LayoutGrid, List } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { useI18n } from "@/lib/i18n";
+import { toCsv, downloadCsv } from "@/lib/csv";
 import {
   Dialog,
   DialogContent,
@@ -32,6 +34,7 @@ const defaultFilters: LeadFilters = {
 };
 
 export default function LeadsPage() {
+  const { t } = useI18n();
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
@@ -175,25 +178,40 @@ export default function LeadsPage() {
   };
 
   const handleExport = () => {
-    const headers = ["Name", "Company", "Email", "Phone", "Source", "Status", "Score", "Created At", "Assignee"];
-    const rows = filteredLeads.map((lead) => [
-      lead.name,
-      lead.company,
-      lead.email,
-      lead.phone,
-      lead.source,
-      lead.status,
-      lead.score.toString(),
-      lead.createdAt,
-      lead.assignee,
-    ]);
-    const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
+    const headers = ["name", "company", "email", "phone", "source", "status", "score", "createdAt", "assignee"];
+    const headerLabels: Record<string, string> = {
+      name: t("lead.name"),
+      company: t("lead.company"),
+      email: t("lead.email"),
+      phone: t("lead.phone"),
+      source: t("lead.source"),
+      status: t("lead.status"),
+      score: t("lead.score"),
+      createdAt: t("lead.createdAt"),
+      assignee: t("lead.assignee"),
+    };
+    const rows = filteredLeads.map((lead) => ({
+      name: lead.name,
+      company: lead.company,
+      email: lead.email,
+      phone: lead.phone,
+      source: lead.source,
+      status: lead.status,
+      score: lead.score.toString(),
+      createdAt: lead.createdAt,
+      assignee: lead.assignee,
+    }));
+    const csv = toCsv(rows, headers, headerLabels);
+    const filename = `leads-${new Date().toISOString().split("T")[0]}.csv`;
+    const BOM = "\uFEFF";
+    const blob = new Blob([BOM + csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `leads-export-${new Date().toISOString().split("T")[0]}.csv`;
+    a.download = filename;
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
 
@@ -273,8 +291,8 @@ export default function LeadsPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold font-poppins text-text-dark">Leads</h1>
-          <p className="text-text-muted mt-1">Manage and qualify your potential customers</p>
+          <h1 className="text-3xl font-bold font-poppins text-text-dark">{t("page.leads.title")}</h1>
+          <p className="text-text-muted mt-1">{t("page.leads.description")}</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
@@ -285,7 +303,7 @@ export default function LeadsPage() {
               className="gap-1.5"
             >
               <List className="w-4 h-4" />
-              <span className="hidden sm:inline">Table</span>
+              <span className="hidden sm:inline">{t("page.leads.table")}</span>
             </Button>
             <Button
               variant={viewMode === "kanban" ? "default" : "ghost"}
@@ -294,24 +312,24 @@ export default function LeadsPage() {
               className="gap-1.5"
             >
               <LayoutGrid className="w-4 h-4" />
-              <span className="hidden sm:inline">Kanban</span>
+              <span className="hidden sm:inline">{t("page.leads.kanban")}</span>
             </Button>
           </div>
           <Button variant="outline" className="gap-2" onClick={handleExport}>
             <Download className="w-4 h-4" />
-            Export
+            {t("common.export")}
           </Button>
           <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
             <DialogTrigger asChild>
               <Button variant="cta" className="gap-2">
                 <Plus className="w-4 h-4" />
-                Add Lead
+                {t("page.leads.addLead")}
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl">
               <DialogHeader>
                 <DialogTitle>
-                  {selectedLead ? "Edit Lead" : "Add New Lead"}
+                  {selectedLead ? t("page.leads.editLead") : t("page.leads.addLead")}
                 </DialogTitle>
               </DialogHeader>
               <LeadForm lead={selectedLead} onClose={handleCloseModal} />
