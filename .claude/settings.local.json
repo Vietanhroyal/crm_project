@@ -10,7 +10,8 @@
       "WebFetch(domain:minimax-algeng-chat-tts-us.oss-us-east-1.aliyuncs.com)",
       "Bash(cd /c/workspace/Engineering/crm_project && npm run build 2>&1)",
       "Bash(curl:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Read(//Users/dev/**)"
     ]
   }
 }

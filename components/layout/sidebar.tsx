@@ -15,6 +15,7 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
+  Building2,
 } from "lucide-react";
 
 const iconMap: Record<string, React.ElementType> = {
@@ -25,6 +26,7 @@ const iconMap: Record<string, React.ElementType> = {
   Calendar,
   BarChart3,
   Settings,
+  Building2,
 };
 
 export function Sidebar() {

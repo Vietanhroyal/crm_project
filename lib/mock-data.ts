@@ -1,4 +1,62 @@
-import { Lead, Contact, Deal, Activity, AIInsight, DashboardStats } from "@/types";
+import { Lead, Contact, Deal, Activity, AIInsight, DashboardStats, ConvertLeadData, Company, TimelineItem, RecordType } from "@/types";
+
+export const companies: Company[] = [
+  {
+    id: "c1",
+    name: "Công ty ABC",
+    website: "abc.vn",
+    industry: "Công nghệ",
+    size: "51-200",
+    phone: "02812345678",
+    address: "Q1, TP.HCM",
+    ownerId: "u2",
+    createdAt: "2026-02-10",
+    description: "Khách hàng tiềm năng mảng ERP",
+  },
+  {
+    id: "c2",
+    name: "XYZ Corporation",
+    website: "xyz.vn",
+    industry: "Tài chính",
+    size: "201-500",
+    phone: "02898765432",
+    address: "Q3, TP.HCM",
+    ownerId: "u1",
+    createdAt: "2026-01-15",
+    description: "Tập đoàn tài chính lớn",
+  },
+  {
+    id: "c3",
+    name: "Tech Solutions",
+    website: "techsolutions.vn",
+    industry: "Công nghệ",
+    size: "11-50",
+    phone: "02811112222",
+    address: "Cầu Giấy, Hà Nội",
+    ownerId: "u1",
+    createdAt: "2026-02-20",
+    description: "Công ty tư vấn & triển khai giải pháp công nghệ",
+  },
+  {
+    id: "c4",
+    name: "Global Trading",
+    website: "globaltrading.vn",
+    industry: "Thương mại",
+    size: "51-200",
+    phone: "02833334444",
+    address: "Q7, TP.HCM",
+    ownerId: "u2",
+    createdAt: "2026-03-01",
+    description: "Công ty xuất nhập khẩu",
+  },
+];
+
+export function getCompanyStats(companyId: string) {
+  const cs = contacts.filter((c) => c.companyId === companyId);
+  const ds = deals.filter((d) => (d as any).companyId === companyId);
+  const openDealValue = ds.reduce((sum, d) => sum + d.value, 0);
+  return { contactCount: cs.length, openDealCount: ds.length, openDealValue };
+}
 
 export const dashboardStats: DashboardStats = {
   totalLeads: 156,
@@ -56,6 +114,29 @@ export const leads: Lead[] = [
     score: 85,
     createdAt: "2026-03-01",
     assignee: "Hoàng An",
+    order: 0,
+    tags: ["vip", "hot"],
+    reminders: [
+      {
+        id: "r1",
+        leadId: "1",
+        date: "2026-06-08",
+        time: "10:00",
+        note: "Follow up on pricing discussion",
+        status: "pending",
+        createdAt: "2026-06-05",
+      },
+      {
+        id: "r2",
+        leadId: "1",
+        date: "2026-06-01",
+        time: "14:00",
+        note: "Initial call",
+        status: "completed",
+        createdAt: "2026-05-30",
+        completedAt: "2026-06-01",
+      },
+    ],
   },
   {
     id: "2",
@@ -68,6 +149,19 @@ export const leads: Lead[] = [
     score: 72,
     createdAt: "2026-03-05",
     assignee: "Hoàng An",
+    order: 0,
+    tags: ["new"],
+    reminders: [
+      {
+        id: "r3",
+        leadId: "2",
+        date: "2026-06-07",
+        time: "09:00",
+        note: "Send product demo video",
+        status: "pending",
+        createdAt: "2026-06-05",
+      },
+    ],
   },
   {
     id: "3",
@@ -80,6 +174,9 @@ export const leads: Lead[] = [
     score: 45,
     createdAt: "2026-03-10",
     assignee: "Minh Tuấn",
+    order: 0,
+    tags: ["long-term", "follow-up"],
+    reminders: [],
   },
   {
     id: "4",
@@ -92,6 +189,19 @@ export const leads: Lead[] = [
     score: 68,
     createdAt: "2026-03-12",
     assignee: "Hoàng An",
+    order: 1,
+    tags: [],
+    reminders: [
+      {
+        id: "r4",
+        leadId: "4",
+        date: "2026-06-05",
+        time: "11:00",
+        note: "Follow up call",
+        status: "overdue",
+        createdAt: "2026-06-04",
+      },
+    ],
   },
   {
     id: "5",
@@ -104,6 +214,9 @@ export const leads: Lead[] = [
     score: 90,
     createdAt: "2026-03-14",
     assignee: "Minh Tuấn",
+    order: 1,
+    tags: ["vip"],
+    reminders: [],
   },
   {
     id: "6",
@@ -116,6 +229,9 @@ export const leads: Lead[] = [
     score: 35,
     createdAt: "2026-03-18",
     assignee: "Hoàng An",
+    order: 1,
+    tags: [],
+    reminders: [],
   },
   {
     id: "7",
@@ -128,6 +244,9 @@ export const leads: Lead[] = [
     score: 20,
     createdAt: "2026-02-28",
     assignee: "Minh Tuấn",
+    order: 0,
+    tags: ["inactive"],
+    reminders: [],
   },
 ];
 
@@ -139,7 +258,10 @@ export const contacts: Contact[] = [
     email: "minh.nv@abc.vn",
     phone: "0901234567",
     position: "CEO",
-    companyId: "1",
+    companyId: "c1",
+    ownerId: "u2",
+    tags: ["vip"],
+    createdAt: "2026-02-15",
   },
   {
     id: "2",
@@ -148,7 +270,10 @@ export const contacts: Contact[] = [
     email: "lan.tt@xyz.vn",
     phone: "0902345678",
     position: "CTO",
-    companyId: "2",
+    companyId: "c2",
+    ownerId: "u1",
+    tags: [],
+    createdAt: "2026-01-20",
   },
   {
     id: "3",
@@ -157,7 +282,22 @@ export const contacts: Contact[] = [
     email: "nam.lh@techsolutions.vn",
     phone: "0903456789",
     position: "COO",
-    companyId: "3",
+    companyId: "c3",
+    ownerId: "u1",
+    tags: [],
+    createdAt: "2026-02-25",
+  },
+  {
+    id: "4",
+    name: "Phạm Thu Hà",
+    company: "Global Trading",
+    email: "ha.pt@globaltrading.vn",
+    phone: "0904567890",
+    position: "Sales Director",
+    companyId: "c4",
+    ownerId: "u2",
+    tags: [],
+    createdAt: "2026-03-05",
   },
 ];
 
@@ -300,3 +440,58 @@ export const chartData = [
   { month: "Tháng 5", leads: 45, deals: 14 },
   { month: "Tháng 6", leads: 52, deals: 18 },
 ];
+
+const nextId = () => Date.now().toString();
+
+const getDealProbability = (stage: Deal["stage"]) => {
+  switch (stage) {
+    case "qualified":
+      return 40;
+    case "proposal":
+      return 60;
+    case "negotiation":
+      return 75;
+    case "won":
+      return 100;
+    case "lost":
+      return 0;
+    default:
+      return 25;
+  }
+};
+
+export function convertLeadToDeal(
+  data: ConvertLeadData,
+  lead: Lead
+): { deal: Deal; contact?: Contact } {
+  const createdAt = new Date().toISOString().split("T")[0];
+
+  let contact: Contact | undefined;
+  if (data.createContact) {
+    contact = {
+      id: nextId(),
+      name: lead.name,
+      company: lead.company,
+      email: lead.email,
+      phone: lead.phone,
+      position: "",
+      companyId: lead.id,
+    };
+    contacts.push(contact);
+  }
+
+  const deal: Deal = {
+    id: nextId(),
+    title: data.dealTitle,
+    value: data.dealValue,
+    stage: data.dealStage,
+    probability: getDealProbability(data.dealStage),
+    contactId: contact?.id || "",
+    createdAt,
+    expectedCloseDate: data.expectedCloseDate,
+  };
+
+  deals.push(deal);
+
+  return { deal, contact };
+}

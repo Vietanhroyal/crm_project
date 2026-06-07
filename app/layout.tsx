@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Poppins, Open_Sans } from "next/font/google";
+import { AuthProvider } from "@/components/admin/auth-provider";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -28,7 +29,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi" className={`${poppins.variable} ${openSans.variable}`}>
-      <body className="antialiased font-opensans">{children}</body>
+      <body className="antialiased font-opensans">
+        <AuthProvider>
+          {children}
+        </AuthProvider>
+      </body>
     </html>
   );
 }

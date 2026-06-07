@@ -6,6 +6,7 @@ import { LEAD_SOURCES } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { LeadScore } from "./lead-score";
+import { LeadTagInput } from "./lead-tag-input";
 
 interface LeadFormProps {
   lead?: Lead | null;
@@ -23,6 +24,7 @@ export function LeadForm({ lead, onClose }: LeadFormProps) {
       status: "new",
       score: 50,
       assignee: "Hoàng An",
+      tags: [],
     }
   );
 
@@ -30,6 +32,10 @@ export function LeadForm({ lead, onClose }: LeadFormProps) {
     e.preventDefault();
     console.log("Form submitted:", formData);
     onClose();
+  };
+
+  const handleTagsChange = (tags: Lead["tags"]) => {
+    setFormData({ ...formData, tags });
   };
 
   return (
@@ -121,6 +127,14 @@ export function LeadForm({ lead, onClose }: LeadFormProps) {
           />
           <LeadScore score={formData.score || 50} />
         </div>
+      </div>
+
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-text-dark">Tags</label>
+        <LeadTagInput
+          selectedTags={formData.tags || []}
+          onChange={handleTagsChange}
+        />
       </div>
 
       <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">

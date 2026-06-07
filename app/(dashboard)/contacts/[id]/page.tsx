@@ -1,10 +1,13 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { contacts, deals, activities } from "@/lib/mock-data";
+import { useState, useEffect } from "react";
+import { contacts, companies, deals, activities } from "@/lib/mock-data";
+import { getTimeline } from "@/lib/timeline";
+import { TimelineItem } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { RecordTimeline } from "@/components/shared/record-timeline";
 import { formatDate, formatCurrency } from "@/lib/utils";
 import {
   ArrowLeft,
@@ -16,22 +19,33 @@ import {
   Trash2,
   PhoneCall,
   FileText,
-  User,
+  ExternalLink,
 } from "lucide-react";
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
 
 export default function ContactDetailPage() {
   const params = useParams();
-  const contact = contacts.find((c) => c.id === params.id);
-  const contactDeals = deals.filter((d) => d.contactId === params.id);
-  const contactActivities = activities.filter((a) => a.contactId === params.id);
+  const paramId = Array.isArray(params.id) ? params.id[0] : params.id;
+
+  const contact = contacts.find((c) => c.id === paramId);
+  const company = contact?.companyId ? companies.find((co) => co.id === contact.companyId) : null;
+  const contactDeals = deals.filter((d) => d.contactId === paramId);
+
+  const [timelineItems, setTimelineItems] = useState<TimelineItem[]>([]);
+
+  useEffect(() => {
+    if (paramId) {
+      setTimelineItems(getTimeline("contact", paramId));
+    }
+  }, [paramId]);
 
   if (!contact) {
     return (
       <div className="flex flex-col items-center justify-center py-12">
-        <p className="text-text-muted mb-4">Contact not found</p>
+        <p className="text-text-muted mb-4">Không tìm thấy liên hệ</p>
         <Link href="/contacts">
-          <Button variant="outline">Back to Contacts</Button>
+          <Button variant="outline">Quay lại danh sách</Button>
         </Link>
       </div>
     );
@@ -43,17 +57,17 @@ export default function ContactDetailPage() {
         <Link href="/contacts">
           <Button variant="ghost" className="gap-2">
             <ArrowLeft className="w-4 h-4" />
-            Back to Contacts
+            Danh sách liên hệ
           </Button>
         </Link>
         <div className="flex gap-2">
           <Button variant="outline" className="gap-2">
             <Edit className="w-4 h-4" />
-            Edit
+            Chỉnh sửa
           </Button>
           <Button variant="ghost" className="gap-2 text-red-600 hover:text-red-600 hover:bg-red-50">
             <Trash2 className="w-4 h-4" />
-            Delete
+            Xóa
           </Button>
         </div>
       </div>
@@ -64,21 +78,28 @@ export default function ContactDetailPage() {
             <CardHeader>
               <div className="flex items-start gap-4">
                 <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center text-white text-2xl font-bold">
-                  {contact.name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")}
+                  {contact.name.split(" ").map((n) => n[0]).join("")}
                 </div>
                 <div>
                   <CardTitle className="text-2xl">{contact.name}</CardTitle>
-                  <p className="text-text-muted flex items-center gap-2 mt-1">
+                  <div className="flex items-center gap-2 mt-1 text-text-muted">
                     <Building2 className="w-4 h-4" />
-                    {contact.position} at {contact.company}
-                  </p>
+                    {company ? (
+                      <Link
+                        href={`/companies/${company.id}`}
+                        className="hover:text-indigo-600 hover:underline font-medium flex items-center gap-1"
+                      >
+                        {contact.position} tại {contact.company}
+                        <ExternalLink className="w-3 h-3" />
+                      </Link>
+                    ) : (
+                      <span>{contact.position} tại {contact.company}</span>
+                    )}
+                  </div>
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-1">
                   <p className="text-sm text-text-muted">Email</p>
@@ -88,70 +109,35 @@ export default function ContactDetailPage() {
                   </p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-sm text-text-muted">Phone</p>
+                  <p className="text-sm text-text-muted">Điện thoại</p>
                   <p className="font-medium text-text-dark flex items-center gap-2">
                     <Phone className="w-4 h-4" />
                     {contact.phone}
                   </p>
                 </div>
-                <div className="space-y-1">
-                  <p className="text-sm text-text-muted">Company</p>
-                  <p className="font-medium text-text-dark">{contact.company}</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-sm text-text-muted">Position</p>
-                  <p className="font-medium text-text-dark">{contact.position}</p>
-                </div>
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <Button variant="cta" className="gap-2">
-                  <PhoneCall className="w-4 h-4" />
-                  Call
-                </Button>
-                <Button variant="outline" className="gap-2">
-                  <Mail className="w-4 h-4" />
-                  Email
-                </Button>
-                <Button variant="outline" className="gap-2">
-                  <FileText className="w-4 h-4" />
-                  Add Note
-                </Button>
+                {contact.createdAt && (
+                  <div className="space-y-1">
+                    <p className="text-sm text-text-muted">Ngày tạo</p>
+                    <p className="font-medium text-text-dark">{formatDate(contact.createdAt)}</p>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
 
-          {contactDeals.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Related Deals</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {contactDeals.map((deal) => (
-                    <Link
-                      key={deal.id}
-                      href={`/deals/${deal.id}`}
-                      className="flex items-center justify-between p-4 rounded-xl hover:bg-gray-50 transition-colors"
-                    >
-                      <div>
-                        <p className="font-semibold text-text-dark">{deal.title}</p>
-                        <p className="text-sm text-text-muted">
-                          Expected close: {formatDate(deal.expectedCloseDate)}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-bold text-primary">{formatCurrency(deal.value)}</p>
-                        <Badge variant="default" className="capitalize mt-1">
-                          {deal.stage}
-                        </Badge>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Lịch sử tương tác</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <RecordTimeline
+                recordType="contact"
+                recordId={contact.id}
+                items={timelineItems}
+                onItemsChange={setTimelineItems}
+              />
+            </CardContent>
+          </Card>
         </div>
 
         <div className="space-y-6">
@@ -161,45 +147,69 @@ export default function ContactDetailPage() {
             </CardHeader>
             <CardContent className="space-y-3">
               <Button variant="outline" className="w-full justify-start gap-3">
-                <Phone className="w-4 h-4 text-cta" />
-                Call
+                <Phone className="w-4 h-4 text-blue-500" />
+                Gọi điện
               </Button>
               <Button variant="outline" className="w-full justify-start gap-3">
-                <Mail className="w-4 h-4 text-primary" />
-                Send Email
+                <Mail className="w-4 h-4 text-green-500" />
+                Gửi Email
               </Button>
               <Button variant="outline" className="w-full justify-start gap-3">
                 <Calendar className="w-4 h-4 text-orange-500" />
-                Schedule Meeting
-              </Button>
-              <Button variant="outline" className="w-full justify-start gap-3">
-                <FileText className="w-4 h-4 text-purple-500" />
-                Add Note
+                Đặt lịch họp
               </Button>
             </CardContent>
           </Card>
 
-          {contactActivities.length > 0 && (
+          {company && (
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Recent Activities</CardTitle>
+                <CardTitle className="text-lg">Công ty</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {contactActivities.slice(0, 5).map((activity) => (
-                    <div key={activity.id} className="flex items-start gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                        <FileText className="w-4 h-4 text-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium text-text-dark text-sm">
-                          {activity.title}
+                <Link
+                  href={`/companies/${company.id}`}
+                  className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors group"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                    {company.name[0]}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-medium text-text-dark group-hover:text-indigo-600 truncate">
+                      {company.name}
+                    </p>
+                    {company.industry && (
+                      <p className="text-xs text-text-muted truncate">{company.industry}</p>
+                    )}
+                  </div>
+                </Link>
+              </CardContent>
+            </Card>
+          )}
+
+          {contactDeals.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Deals liên quan</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {contactDeals.map((deal) => (
+                    <Link
+                      key={deal.id}
+                      href={`/deals/${deal.id}`}
+                      className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50 transition-colors group"
+                    >
+                      <div className="min-w-0">
+                        <p className="font-medium text-text-dark group-hover:text-indigo-600 text-sm truncate">
+                          {deal.title}
                         </p>
-                        <p className="text-xs text-text-muted">
-                          {formatDate(activity.dueDate)}
-                        </p>
+                        <p className="text-xs text-text-muted capitalize">{deal.stage}</p>
                       </div>
-                    </div>
+                      <p className="text-sm font-bold text-primary ml-2 flex-shrink-0">
+                        {formatCurrency(deal.value)}
+                      </p>
+                    </Link>
                   ))}
                 </div>
               </CardContent>
