@@ -1,4 +1,4 @@
-# VanhCorp - Next.js Implementation
+# VanhCorp CRM
 
 A modern CRM system for AI transformation sales teams built with Next.js 14, Tailwind CSS, and Shadcn/ui.
 
@@ -10,55 +10,54 @@ A modern CRM system for AI transformation sales teams built with Next.js 14, Tai
 - **Icons:** Lucide React
 - **Charts:** Recharts
 - **TypeScript:** Full type safety
+- **Drag & Drop:** @dnd-kit
 
 ## Getting Started
 
 1. Install dependencies:
-```bash
-npm install
-```
+   ```bash
+   npm install
+   ```
 
 2. Run the development server:
-```bash
-npm run dev
-```
+   ```bash
+   npm run dev
+   ```
 
 3. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Features
 
-- **Dashboard:** AI Transformation Score, stats cards, charts, insights panel
-- **Leads Management:** Table with search, filtering, scoring, CRUD operations
-- **Deals Pipeline:** Kanban-style board with drag-and-drop
-- **Contacts:** Contact cards with quick actions
-- **Activities:** Task timeline with status tracking
-- **Reports:** Analytics and data visualization
-- **Settings:** User profile and team management
+| Module | Description |
+|--------|-------------|
+| **Dashboard** | AI Transformation Score, stats cards, charts, insights panel |
+| **Leads** | Table with search, filtering, scoring, CRUD operations |
+| **Deals** | Kanban-style pipeline with drag-and-drop |
+| **Contacts** | Contact cards with quick actions |
+| **Activities** | Task timeline with status tracking |
+| **Reports** | Analytics and data visualization |
+| **Settings** | User profile and team management |
 
 ## Project Structure
 
 ```
 crm_project/
-├── app/                    # Next.js App Router pages
-│   ├── (auth)/            # Authentication pages
-│   ├── (dashboard)/        # Dashboard routes
-│   │   ├── leads/         # Leads module
-│   │   ├── contacts/      # Contacts module
-│   │   ├── deals/         # Deals module
-│   │   ├── activities/    # Activities module
-│   │   ├── reports/       # Reports module
-│   │   └── settings/      # Settings module
-│   └── globals.css        # Global styles
+├── app/                      # Next.js App Router
+│   ├── (auth)/               # login, register pages
+│   └── (dashboard)/          # dashboard, leads, contacts, deals, activities, reports, settings
 ├── components/
-│   ├── ui/                # Shadcn/ui components
-│   ├── layout/            # Layout components
-│   ├── dashboard/         # Dashboard-specific components
-│   ├── leads/             # Leads components
-│   ├── deals/             # Deals components
-│   └── shared/            # Shared components
-├── lib/                   # Utilities and mock data
-├── types/                 # TypeScript definitions
-└── package.json
+│   ├── ui/                   # Shadcn/ui primitives
+│   ├── layout/               # sidebar, header, shell
+│   ├── leads/                # Leads components
+│   ├── deals/                 # Deals components
+│   └── activities/           # Activities components
+├── lib/
+│   ├── mock-data.ts          # Mock data (temporary)
+│   ├── constants.ts          # Deal stages, lead sources, nav items
+│   └── utils.ts              # Utilities (cn(), formatCurrency, formatDate)
+├── types/
+│   └── index.ts              # TypeScript definitions
+└── docs/                     # Backend technical design
 ```
 
 ## Design System
@@ -66,4 +65,17 @@ crm_project/
 - **Primary:** Indigo (#6366F1)
 - **CTA:** Emerald (#10B981)
 - **Typography:** Poppins (headings) + Open Sans (body)
-- **Style:** Vibrant & Block-based
+
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start development server |
+| `npm run build` | Production build |
+| `npm run start` | Run production build |
+| `npm run lint` | Run Next.js lint |
+| `npx tsc --noEmit` | Type-check |
+
+## License
+
+MIT
